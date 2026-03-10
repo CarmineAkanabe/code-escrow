@@ -14,6 +14,7 @@ class Transaction extends Model
 
     // Fillable columns or attributes in the 
     protected $fillable = [
+        'gig_id',
         'amount_usd',
         'payout_xaf',
         'gateway_reference',

@@ -15,6 +15,7 @@ class Gig extends Model
 
     // Fillable columns or attributes in the DB
     protected $fillable = [
+        'freelancer_id',
         'title',
         'budget_usd',
         'status'
