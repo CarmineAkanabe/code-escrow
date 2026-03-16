@@ -19,24 +19,25 @@ class GigManagementService
     public function createGig(array $data): Gig {
 
         // For better security using DBA concept of transactions, wrap everythig with the DB::transaction function
-        // return DB::transaction(function () use ($validatedData) {...}
+        return DB::transaction(function () use ($data) {
 
-        // This is used to create the gig class and insert data from the $validatedData array
-        $gig = Gig::create([
-            'freelancer_id' => $data['freelancer_id'],
-            'title' => $data['title'],
-            'budget_usd' => $data['budget_usd'],
-            'status' => 'open'
-        ]);
+            // This is used to create the gig class and insert data from the $validatedData array
+            $gig = Gig::create([
+                'freelancer_id' => $data['freelancer_id'],
+                'title' => $data['title'],
+                'budget_usd' => $data['budget_usd'],
+                'status' => 'open'
+            ]);
 
-        // After the gig class is initiated we auto create a transaction linked to it
-        Transaction::create([
-            'gig_id' => $gig->id,
-            'amount_usd' => $gig->budget_usd,
-            'status' => 'held',
-            'payout_xaf' => null
-        ]);
+            // After the gig class is initiated we auto create a transaction linked to it
+            Transaction::create([
+                'gig_id' => $gig->id,
+                'amount_usd' => $gig->budget_usd,
+                'status' => 'held',
+                'payout_xaf' => null
+            ]);
 
-        return $gig;
+            return $gig;
+        });
     }
 }
