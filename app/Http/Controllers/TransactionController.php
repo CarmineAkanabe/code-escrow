@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Transaction;
 use App\Services\PaymentService;
 use App\Http\Resources\TransactionResource;
+use Illuminate\Http\JsonResponse;
 
 class TransactionController extends Controller
 {
@@ -14,9 +15,9 @@ class TransactionController extends Controller
      */
     public function index()
     {
-        $updatedTransaction = Transaction::with('gigs')->get();
+        $updatedTransaction = Transaction::with('gig')->get();
         
-        return new TransactionResource($updatedTransaction);
+        return TransactionResource::collection($updatedTransaction);
     }
 
     /**
@@ -51,4 +52,20 @@ class TransactionController extends Controller
         //
     }
 
+    public function release(Transaction $transaction, PaymentService $paymentService): JsonResponse
+    {
+        try {
+            $updatedTransaction = $paymentService->releaseFunds($transaction);
+
+            return response()->json([
+                'message' => 'Funds released successfully.',
+                'data' => $updatedTransaction
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 400);
+        }
+    }
 }

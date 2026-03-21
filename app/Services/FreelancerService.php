@@ -39,4 +39,22 @@ class FreelancerService
         return $freelancer;
 
     }
+
+    public function updateTrustScores(): Bool
+    {
+        $freelancers = Freelancer::all(); // yes, this is where get() logic happens
+
+        foreach ($freelancers as $freelancer) {
+
+            $response = Http::get("https://api.github.com/users/{$freelancer->github_username}");
+
+            if ($response->successful()) {
+                 $freelancer->update(['trust_score' => $response->json()['public_repos']]);
+            }
+
+        // Optional: skip failures silently
+        }
+
+        return True;
+    }
 }

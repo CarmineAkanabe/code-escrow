@@ -8,15 +8,16 @@ use App\Http\Requests\FreelancerRequest;
 use Illuminate\Http\JsonResponse;
 use App\Http\Resources\FreelancerResource;
 use App\Models\Freelancer;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class FreelancerController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): AnonymousResourceCollection
     {
-        $freelancers = Freelancer::with('gigs')->get();
+        $freelancers = Freelancer::with('gig')->paginate(20);
 
         return FreelancerResource::collection($freelancers);
     }
@@ -68,4 +69,13 @@ class FreelancerController extends Controller
     {
         //
     }
+
+    public function refreshTrust(FreelancerService $service):JsonResponse
+{
+    $service->updateTrustScores();
+
+    return response()->json([
+        'message' => 'Trust scores updated successfully'
+    ]);
+}
 }

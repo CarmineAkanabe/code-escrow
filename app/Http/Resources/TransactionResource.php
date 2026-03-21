@@ -15,14 +15,13 @@ class TransactionResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'amount_usd' => $this->amount_usd,
-            'payout_xaf' => $this->payout_xaf,
-            'status' => $this->status,
+            'amount_usd' => (float)$this->amount_usd,
+            'payout_xaf' => (float)$this->payout_xaf,
+            'transaction_status' => $this->status,
 
-            'gig' => [
-                'title' => $this->gig->title,
-                'status' => $this->gig->status,
-            ]
+            'gig' => $this->whenLoaded('gig', function () {
+                return new GigSummaryResource($this->gig);
+            })
         ];
     }
 }

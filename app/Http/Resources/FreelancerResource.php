@@ -18,8 +18,10 @@ class FreelancerResource extends JsonResource
             'name' => $this->name,
             'github_username' => $this->github_username,
             'trust_score' => $this->trust_score,
-            // This is for nested Gigs
-            'gigs' => GigResource::collection($this->whenLoaded('gigs'))
+
+            // This is for nested Gigs, but puts in all gig details. We don't need that
+            'gigs' => GigSummaryResource::collection($this->whenLoaded('gig'))
+
         ];
     }
 }

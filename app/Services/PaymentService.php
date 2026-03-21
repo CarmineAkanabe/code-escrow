@@ -3,63 +3,52 @@
 namespace App\Services;
 
 use App\Models\Transaction;
-use Exception;
+use App\Enums\TransactionStatus;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
+use App\Jobs\SendPayoutEmailJob;
+use Exception;
+
 class PaymentService
 {
-    /**
-     * Create a new class instance.
-     */
-    public function __construct()
+    public function releaseFunds(Transaction $transaction): Transaction
     {
-        //
-    }
+        // 🔒 Failsafe
+        if ($transaction->status === TransactionStatus::RELEASED) {
+            throw new Exception("Funds have already been released for this transaction.");
+        }
 
-    public function releaseFunds(Transaction $transaction)
-    {
-        // Failsafe measure taken to prevent double payouts
-        if ($transaction->status == 'released')
-            {
-                throw new Exception("Funds have already been released for this transaction");
-            }
-
-        // Default fall back rate
-        $xafRate = 600.0;
-
-        // Use a free exchange rate API
+        // 🌍 Exchange Rate API
         $response = Http::get('https://open.er-api.com/v6/latest/USD');
 
-        if ($response->successful())
-            {
-                $data = $response->json();
-                // You can use 
-                // $data = $response->json('rates.XAF');
+        if ($response->successful()) {
+            $rate = $response->json()['rates']['XAF'] ?? 600.00;
+        } else {
+            // ⚠️ Fallback
+            $rate = 600.00;
+        }
 
-                // This is safer
-                if (isset($data['rates']['XAF'])) {
-                    $xafRate = $data['rates']['XAF'];
-                }
-            }
-        
-        // Calculating Payout
-        $payoutXaf = $transaction->amount_usd * $xafRate;
+        // 💰 Calculation
+        $payoutXaf = $transaction->amount_usd * $rate;
 
-        // Transaction system for database
+        // 🧠 Critical Section (DB Transaction)
         DB::transaction(function () use ($transaction, $payoutXaf) {
 
-            // Update transaction
-            $transaction->status = 'released';
-            $transaction->payout_xaf = $payoutXaf;
-            $transaction->save();
+            // Update Transaction
+            $transaction->update([
+                'status' => TransactionStatus::RELEASED,
+                'payout_xaf' => $payoutXaf,
+            ]);
 
-            // Update associated gig
-            $gig = $transaction->gig;
-            $gig->status = 'completed';
-            $gig->save();
-
+            // Update related Gig
+            $transaction->gig->update([
+                'status' => 'completed'
+            ]);
         });
 
-        return $transaction->fresh();
+        // 📦 Dispatch Job (ASYNC EMAIL)
+        SendPayoutEmailJob::dispatch($transaction);
+
+        return $transaction->fresh(); // 🔁 return updated version
     }
 }

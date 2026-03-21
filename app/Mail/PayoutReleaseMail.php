@@ -14,12 +14,14 @@ class PayoutReleaseMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public Transaction $transaction;
+
     /**
      * Create a new message instance.
      */
-    public function __construct()
+    public function __construct(Transaction $transaction)
     {
-        
+        $this->transaction = $transaction;
     }
 
     /**
@@ -28,7 +30,7 @@ class PayoutReleaseMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Your Payout Has Been Released'
+            subject: 'Your Payment Has Been Released'
         );
     }
 
@@ -38,7 +40,13 @@ class PayoutReleaseMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'view.email.payout',
+            view: 'email.payout',
+            with: [
+                'transaction' => $this->transaction,
+                'amount_xaf' => $this->transaction->payout_xaf,
+                'freelancer_name' => $this->transaction->gig->freelancer->name,
+                'gig_title' => $this->transaction->gig->title,
+            ]
         );
     }
 

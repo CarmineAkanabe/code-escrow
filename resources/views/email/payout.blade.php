@@ -1,11 +1,25 @@
 <div>
     <!-- We must ship. - Taylor Otwell -->
-    <h2>Payout Successful 🎉</h2>
+    <h2>Hello {{ $freelancer_name }},</h2>
 
-    <p>Your funds have been released successfully.</p>
+    <p>
+       Your payment for the gig <strong>{{ $gig_title }}</strong> has been successfully released.
+    </p>
 
-    <p><strong>Amount (USD):</strong> {{ $transaction->amount_usd }}</p>
-    <p><strong>Payout (XAF):</strong> {{ $transaction->payout_xaf }}</p>
+    <p>
+        <strong>Amount Paid:</strong> ${{ number_format($transaction->amount_usd, 2) }} USD
+    </p>
 
-    <p>Thank you for using our platform.</p>
+    <p>
+        <strong>Converted Amount:</strong> <span class="amount">{{ number_format($amount_xaf, 2) }} XAF</span>
+    </p>
+
+    <p>
+        Thank you for your work!
+    </p>
+
+    <div class="footer">
+        &copy; {{ date('Y') }} Your Platform Name. All rights reserved.
+    </div>
+    
 </div>

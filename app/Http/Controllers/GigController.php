@@ -19,7 +19,7 @@ class GigController extends Controller
     {
         // This formats the requested data in a more paginated style
         $gigs = Gig::with(['freelancer', 'transaction']) // Eager loading relationships
-                    ->paginate(10);
+                    ->paginate(20);
         // The resource serializes (aranges the data in an understandable way for external users)
         return GigResource::collection($gigs);
     }
