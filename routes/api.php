@@ -1,37 +1,53 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\FreelancerController;
 use App\Http\Controllers\GigController;
 use App\Http\Controllers\TransactionController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+
+/**
+    * EXTERNAL PUBLIC ROUTES
+*/
 
 // This is to test the API routes
 Route::get('/ping', function () {
     return response()->json(['message' => 'API is alive']);
 });
 
-// This is to display all the needed info (userwise)
-Route::get('/gigs', [GigController::class, 'index']);
+// Users Register through this route
+Route::post('/register', [AuthController::class, 'register']);
 
-// This is to store a gig
-Route::post('/gigs', [GigController::class, 'store']);
+// Users Login/Authenticate through this route
+Route::post('/login', [AuthController::class, 'login']);
 
-// This route is to get all Freelancers
-Route::get('/freelancer', [FreelancerController::class, 'index']);
+/**
+ * ROUTES UNDER MIDDLEWARE PROTECTION (REQUIRE AUTHENTICATION)
+ */
 
-// This is to add a new freelancer
-Route::post('/freelancer', [FreelancerController::class, 'store']);
+Route::middleware('auth:sanctum')->group( function () {
 
-// This is to get all the database transactions
-Route::get('/transaction', [TransactionController::class, 'index']);
+    // This route is for Loging out of the system
+    Route::post('/logout', [AuthController::class, 'logout']);
+    
 
-// This updates all trust scores of freelancers
-Route::patch('/freelancer/refresh-trust', [FreelancerController::class, 'refreshTrust']);
+    // This is to display all the needed info (userwise)
+    Route::get('/gigs', [GigController::class, 'index']);
+    // This is to store a gig
+    Route::post('/gigs', [GigController::class, 'store']);
 
-// This is to finalize a transaction
-Route::patch('/transaction/{transaction}/release', [TransactionController::class, 'release']);
+
+    // This route is to get all Freelancers
+    Route::get('/freelancer', [FreelancerController::class, 'index']);
+    // This is to add a new freelancer
+    Route::post('/freelancer', [FreelancerController::class, 'store']);
+    // This updates all trust scores of freelancers
+    Route::patch('/freelancer/refresh-trust', [FreelancerController::class, 'refreshTrust']);
+
+
+    // This is to get all the database transactions
+    Route::get('/transaction', [TransactionController::class, 'index']);
+    // This is to finalize a transaction
+    Route::patch('/transaction/{transaction}/release', [TransactionController::class, 'release']);
+});
