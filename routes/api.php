@@ -30,7 +30,7 @@ Route::middleware('auth:sanctum')->group( function () {
 
     // This route is for Loging out of the system
     Route::post('/logout', [AuthController::class, 'logout']);
-    
+
 
     // This is to display all the needed info (userwise)
     Route::get('/gigs', [GigController::class, 'index']);

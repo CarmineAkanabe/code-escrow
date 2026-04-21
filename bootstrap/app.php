@@ -5,6 +5,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Auth\Access\AuthorizationException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -21,5 +22,9 @@ return Application::configure(basePath: dirname(__DIR__))
         //
         $exceptions->render(function (AuthenticationException $e, Request $request) {
             return response()->json(['message' => 'You are not authenticated.'], 401);
+        });
+
+        $exceptions->render(function (AuthorizationException $e, Request $request) {
+            return response()->json(['message' => 'Forbidden.'], 403);
         });
     })->create();

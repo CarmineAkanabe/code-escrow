@@ -16,7 +16,7 @@ class TransactionController extends Controller
     public function index()
     {
         $updatedTransaction = Transaction::with('gig')->get();
-        
+
         return TransactionResource::collection($updatedTransaction);
     }
 
@@ -67,5 +67,7 @@ class TransactionController extends Controller
                 'error' => $e->getMessage()
             ], 400);
         }
+
+        $this->authorize('releaseTransaction', $transaction->gig);
     }
 }

@@ -13,25 +13,25 @@ class PaymentService
 {
     public function releaseFunds(Transaction $transaction): Transaction
     {
-        // 🔒 Failsafe
+        //  Failsafe
         if ($transaction->status === TransactionStatus::RELEASED) {
             throw new Exception("Funds have already been released for this transaction.");
         }
 
-        // 🌍 Exchange Rate API
+        //  Exchange Rate API
         $response = Http::get('https://open.er-api.com/v6/latest/USD');
 
         if ($response->successful()) {
             $rate = $response->json()['rates']['XAF'] ?? 600.00;
         } else {
-            // ⚠️ Fallback
+            //  Fallback
             $rate = 600.00;
         }
 
-        // 💰 Calculation
+        //  Calculation
         $payoutXaf = $transaction->amount_usd * $rate;
 
-        // 🧠 Critical Section (DB Transaction)
+        //  Critical Section (DB Transaction)
         DB::transaction(function () use ($transaction, $payoutXaf) {
 
             // Update Transaction
@@ -46,9 +46,11 @@ class PaymentService
             ]);
         });
 
-        // 📦 Dispatch Job (ASYNC EMAIL)
+        //  Dispatch Job (ASYNC EMAIL)
         SendPayoutEmailJob::dispatch($transaction);
 
         return $transaction->fresh(); // 🔁 return updated version
     }
+
+    // You need a patch method to update all the xaf_payouts in the local db
 }

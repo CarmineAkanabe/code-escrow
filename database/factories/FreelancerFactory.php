@@ -3,7 +3,8 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Validation\Rules\Unique;
+use App\Models\User;
+// use Illuminate\Validation\Rules\Unique;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Freelancer>
@@ -24,6 +25,9 @@ class FreelancerFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'github_username' => fake()->unique()->userName(),
             'trust_score' => 0, // Will be used to count repos
+
+            //
+            'user_id' => User::factory(),
         ];
     }
 }

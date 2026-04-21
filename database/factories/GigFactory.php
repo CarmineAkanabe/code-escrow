@@ -4,8 +4,6 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Enums\GigStatus;
-use App\Models\Freelancer;
-use App\Models\Transaction;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Gig>
@@ -26,7 +24,7 @@ class GigFactory extends Factory
 
             'title' => fake()->jobTitle(),  // or catchPhrase()
             'budget_usd' => fake()->randomFloat(2, 50, 5000), // from 50 to 5000 with 2 dec points
-            'status' => fake()->randomElement(GigStatus::cases())->value // Grabs the Enum class
+            'status' => fake()->randomElement(GigStatus::cases())->value, // Grabs the Enum class
         ];
     }
 }
